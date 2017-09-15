@@ -1,0 +1,18 @@
+
+node() {
+stage 'buildInDevelopment'
+openshiftBuild(namespace: 'jenkingsdevelopment', buildConfig: 'rosephp', showBuildLogs: 'true')
+stage 'deployInDevelopment'
+openshiftDeploy(namespace: 'jenkingsdevelopment', deploymentConfig: 'rosephp')
+openshiftScale(namespace: 'jenkingsdevelopment', deploymentConfig: 'rosephp',replicaCount: '2')
+stage 'deployInTesting'
+openshiftTag(namespace: 'jenkingsdevelopment', sourceStream: 'rosephp',  sourceTag: 'latest', destinationStream: 'rosephp', destinationTag: 'promoteToQA')
+openshiftDeploy(namespace: 'jenkingstesting', deploymentConfig: 'rosephp', )
+openshiftScale(namespace: 'jenkingstesting', deploymentConfig: 'rosephp', replicaCount: '3')
+stage 'deployInProd'
+openshiftTag(namespace: 'jenkingsdevelopment', sourceStream: 'rosephp',  sourceTag: 'latest', destinationStream: 'rosephp', destinationTag: 'promoteToProd')
+openshiftDeploy(namespace: 'jenkinsprod', deploymentConfig: 'rosephp', )
+openshiftScale(namespace: 'jenkinsprod', deploymentConfig: 'rosephp', replicaCount: '4')
+}
+
+
